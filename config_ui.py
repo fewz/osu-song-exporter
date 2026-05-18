@@ -8,6 +8,26 @@ from tkinter import ttk
 
 CONFIG_FILE = "config.json"
 
+ARTIST_OVERWRITE_NONE = "none"
+ARTIST_OVERWRITE_EMPTY = "empty"
+ARTIST_OVERWRITE_ALL = "all"
+
+ARTIST_OVERWRITE_OPTIONS = [
+    (ARTIST_OVERWRITE_NONE, "Don't overwrite artist"),
+    (ARTIST_OVERWRITE_EMPTY, "Overwrite empty / unknown artist only"),
+    (ARTIST_OVERWRITE_ALL, "Overwrite all artist"),
+]
+
+ALBUM_OVERWRITE_NONE = "none"
+ALBUM_OVERWRITE_EMPTY = "empty"
+ALBUM_OVERWRITE_ALL = "all"
+
+ALBUM_OVERWRITE_OPTIONS = [
+    (ALBUM_OVERWRITE_NONE, "Don't overwrite album"),
+    (ALBUM_OVERWRITE_EMPTY, "Overwrite empty / unknown album only"),
+    (ALBUM_OVERWRITE_ALL, "Overwrite all album"),
+]
+
 DEFAULT_CONFIG = {
     "OSU_SONGS_FOLDER": "",
     "EXPORT_FOLDER": "",
@@ -17,7 +37,9 @@ DEFAULT_CONFIG = {
     "EXPORT_BACKGROUND": True,
     "GENERATE_PLAYLIST": False,
     "REFRESH_DATABASE": False,
-    "MAX_WORKERS": 8
+    "MAX_WORKERS": 8,
+    "ARTIST_OVERWRITE": ARTIST_OVERWRITE_EMPTY,
+    "ALBUM_OVERWRITE": ALBUM_OVERWRITE_EMPTY,
 }
 
 
@@ -28,8 +50,8 @@ class ConfigUI:
         self.root = root
 
         self.root.title("osu! Song Exporter Config")
-        self.root.geometry("610x750")
-        self.root.minsize(610,750)
+        self.root.geometry("610x820")
+        self.root.minsize(610, 820)
 
         self.config = self.load_config()
 
@@ -70,7 +92,9 @@ class ConfigUI:
             "EXPORT_BACKGROUND": self.export_bg_var.get(),
             "GENERATE_PLAYLIST": self.playlist_var.get(),
             "REFRESH_DATABASE": self.refresh_db_var.get(),
-            "MAX_WORKERS": int(self.max_workers_var.get())
+            "MAX_WORKERS": int(self.max_workers_var.get()),
+            "ARTIST_OVERWRITE": self.artist_overwrite_value(),
+            "ALBUM_OVERWRITE": self.album_overwrite_value(),
         }
 
         # =============================================
@@ -120,6 +144,34 @@ class ConfigUI:
             messagebox.showerror(
                 "Invalid Worker Count",
                 "Max workers must be greater than 0."
+            )
+
+            return
+
+        valid_artist_modes = {
+            option[0]
+            for option in ARTIST_OVERWRITE_OPTIONS
+        }
+
+        if config["ARTIST_OVERWRITE"] not in valid_artist_modes:
+
+            messagebox.showerror(
+                "Invalid Artist Overwrite",
+                "Please select a valid artist overwrite option."
+            )
+
+            return
+
+        valid_album_modes = {
+            option[0]
+            for option in ALBUM_OVERWRITE_OPTIONS
+        }
+
+        if config["ALBUM_OVERWRITE"] not in valid_album_modes:
+
+            messagebox.showerror(
+                "Invalid Album Overwrite",
+                "Please select a valid album overwrite option."
             )
 
             return
@@ -334,6 +386,80 @@ class ConfigUI:
             variable=self.export_bg_var
         ).pack(anchor="w")
 
+        artist_frame = ttk.Frame(settings_frame)
+        artist_frame.pack(fill="x", anchor="w", pady=(8, 0))
+
+        ttk.Label(
+            artist_frame,
+            text="Artist Tag Overwrite"
+        ).pack(anchor="w")
+
+        self.artist_overwrite_var = tk.StringVar()
+
+        artist_labels = [
+            label
+            for _, label in ARTIST_OVERWRITE_OPTIONS
+        ]
+
+        self.artist_overwrite_combo = ttk.Combobox(
+            artist_frame,
+            textvariable=self.artist_overwrite_var,
+            values=artist_labels,
+            state="readonly",
+            width=42,
+        )
+
+        self.artist_overwrite_combo.pack(
+            anchor="w",
+            pady=(4, 0),
+        )
+
+        self.artist_overwrite_combo.set(
+            self.artist_overwrite_label(
+                self.config.get(
+                    "ARTIST_OVERWRITE",
+                    ARTIST_OVERWRITE_EMPTY,
+                )
+            )
+        )
+
+        album_frame = ttk.Frame(settings_frame)
+        album_frame.pack(fill="x", anchor="w", pady=(8, 0))
+
+        ttk.Label(
+            album_frame,
+            text="Album Tag Overwrite"
+        ).pack(anchor="w")
+
+        self.album_overwrite_var = tk.StringVar()
+
+        album_labels = [
+            label
+            for _, label in ALBUM_OVERWRITE_OPTIONS
+        ]
+
+        self.album_overwrite_combo = ttk.Combobox(
+            album_frame,
+            textvariable=self.album_overwrite_var,
+            values=album_labels,
+            state="readonly",
+            width=42,
+        )
+
+        self.album_overwrite_combo.pack(
+            anchor="w",
+            pady=(4, 0),
+        )
+
+        self.album_overwrite_combo.set(
+            self.album_overwrite_label(
+                self.config.get(
+                    "ALBUM_OVERWRITE",
+                    ALBUM_OVERWRITE_EMPTY,
+                )
+            )
+        )
+
         ttk.Checkbutton(
             settings_frame,
             text="Generate Playlist",
@@ -436,6 +562,42 @@ class ConfigUI:
     # =====================================================
     # ACTIONS
     # =====================================================
+
+    def artist_overwrite_label(self, value):
+
+        for option_value, label in ARTIST_OVERWRITE_OPTIONS:
+            if option_value == value:
+                return label
+
+        return ARTIST_OVERWRITE_OPTIONS[1][1]
+
+    def artist_overwrite_value(self):
+
+        label = self.artist_overwrite_var.get()
+
+        for value, option_label in ARTIST_OVERWRITE_OPTIONS:
+            if option_label == label:
+                return value
+
+        return ARTIST_OVERWRITE_EMPTY
+
+    def album_overwrite_label(self, value):
+
+        for option_value, label in ALBUM_OVERWRITE_OPTIONS:
+            if option_value == value:
+                return label
+
+        return ALBUM_OVERWRITE_OPTIONS[1][1]
+
+    def album_overwrite_value(self):
+
+        label = self.album_overwrite_var.get()
+
+        for value, option_label in ALBUM_OVERWRITE_OPTIONS:
+            if option_label == label:
+                return value
+
+        return ALBUM_OVERWRITE_EMPTY
 
     def toggle_limit(self):
 

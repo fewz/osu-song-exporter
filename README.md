@@ -4,6 +4,7 @@ Export all songs from your osu! Songs folder into a clean music library organize
 
 Supports:
 - Unicode title & artist
+- Artist & album tag embedding
 - Incremental export
 - Playlist generation
 - Cover/background export
@@ -19,6 +20,9 @@ Supports:
 - Export all osu! songs automatically
 - Organize songs by artist folder
 - Unicode metadata support (`TitleUnicode`, `ArtistUnicode`)
+- Embed artist tags from beatmap metadata
+- Embed album tags from beatmap `Source` (fallback: `Unknown Album`)
+- Configurable artist / album overwrite modes (`none`, `empty`, `all`)
 - Export beatmap background / cover image
 - Generate global playlist (`playlist.m3u`)
 - Generate playlist per artist
@@ -49,7 +53,11 @@ project_folder
 # Requirements
 
 - Python 3.9+
-- No external libraries required
+- [mutagen](https://mutagen.readthedocs.io/) (optional, recommended for cover / artist / album embedding)
+
+```bash
+pip install mutagen
+```
 
 ---
 
@@ -71,6 +79,8 @@ The UI supports:
 - Song limit input
 - Copy / move mode
 - Export background toggle
+- Artist tag overwrite mode (combobox)
+- Album tag overwrite mode (combobox)
 - Playlist generation toggle
 - Refresh database toggle
 - Max worker configuration
@@ -89,6 +99,8 @@ The UI supports:
 | Refresh Database | False |
 | Export All Songs | True |
 | Max Workers | 8 |
+| Artist Overwrite | `empty` |
+| Album Overwrite | `empty` |
 
 ---
 
@@ -106,9 +118,21 @@ Generated automatically after saving:
     "EXPORT_BACKGROUND": true,
     "GENERATE_PLAYLIST": false,
     "REFRESH_DATABASE": false,
-    "MAX_WORKERS": 8
+    "MAX_WORKERS": 8,
+    "ARTIST_OVERWRITE": "empty",
+    "ALBUM_OVERWRITE": "empty"
 }
 ```
+
+### Artist / Album Overwrite Modes
+
+| Value | Behavior |
+|---|---|
+| `none` | Do not write tags |
+| `empty` | Write only when the file tag is missing or unknown |
+| `all` | Always overwrite with beatmap metadata |
+
+---
 
 ---
 
@@ -125,13 +149,15 @@ The exporter will:
 1. Scan all osu! beatmap folders
 2. Read metadata from `.osu` files
 3. Extract:
-   - Artist
-   - Title
+   - Artist (`ArtistUnicode` / `Artist`)
+   - Title (`TitleUnicode` / `Title`)
+   - Source (used as album)
    - Audio file
    - Background image
 4. Export songs into artist folders
-5. Save export history into JSON database
-6. Generate playlists automatically
+5. Embed cover, artist, and album tags (when mutagen is installed)
+6. Save export history into JSON database
+7. Generate playlists automatically (if enabled)
 
 ---
 
@@ -257,6 +283,25 @@ YOASOBI - アイドル
 
 ---
 
+# Metadata Embedding
+
+When **mutagen** is installed, exported audio files can receive embedded tags.
+
+## Artist
+
+- Taken from `ArtistUnicode`, falling back to `Artist`
+- Controlled by `ARTIST_OVERWRITE` (`none` / `empty` / `all`)
+
+## Album
+
+- Taken from beatmap `Source`
+- If `Source` is empty, uses **`Unknown Album`**
+- Controlled by `ALBUM_OVERWRITE` (`none` / `empty` / `all`)
+
+Supported formats for tag embedding: `.mp3`, `.flac`, `.ogg`, `.m4a`, `.mp4`
+
+---
+
 # Missing Config Protection
 
 If `config.json` does not exist:
@@ -279,10 +324,10 @@ to create configuration first.
 - Duplicate difficulty maps are skipped automatically
 - Windows filename sanitization included
 - Background export is optional
+- Artist / album embedding requires mutagen
 - JSON database stored beside Python script
 - Supports copy mode and move mode
-- Fully standalone project
-- No external dependency required
+- Fully standalone project (mutagen optional)
 
 ---
 

@@ -342,6 +342,7 @@
       organized by artist.
       Includes playlist generation, unicode support,
       multithread exporting, cover export,
+      artist and album tag embedding,
       incremental export system,
       and graphical configuration editor.
     </p>
@@ -354,6 +355,7 @@
       <div class="badge">Playlist Generator</div>
       <div class="badge">GUI Config Editor</div>
       <div class="badge">Incremental Export</div>
+      <div class="badge">Metadata Tags</div>
 
     </div>
 
@@ -385,6 +387,16 @@
       <div class="feature">
         <strong>Background Export</strong>
         Export beatmap background / cover image.
+      </div>
+
+      <div class="feature">
+        <strong>Metadata Embedding</strong>
+        Embed artist from ArtistUnicode and album from beatmap Source.
+      </div>
+
+      <div class="feature">
+        <strong>Tag Overwrite Control</strong>
+        Choose none, empty-only, or overwrite-all for artist and album tags.
       </div>
 
       <div class="feature">
@@ -425,6 +437,24 @@
 
   </section>
 
+  <!-- REQUIREMENTS -->
+
+  <section class="card">
+
+    <h2>Requirements</h2>
+
+    <ul>
+      <li>Python 3.9+</li>
+      <li>
+        <a href="https://mutagen.readthedocs.io/">mutagen</a>
+        (optional, recommended for cover / artist / album embedding)
+      </li>
+    </ul>
+
+<pre><code>pip install mutagen</code></pre>
+
+  </section>
+
   <!-- CONFIG UI -->
 
   <section class="card">
@@ -446,6 +476,8 @@
       <li>Song limit input</li>
       <li>Copy / move mode</li>
       <li>Background export toggle</li>
+      <li>Artist tag overwrite combobox</li>
+      <li>Album tag overwrite combobox</li>
       <li>Playlist generation toggle</li>
       <li>Refresh database toggle</li>
       <li>Max worker configuration</li>
@@ -496,6 +528,16 @@
           <td>8</td>
         </tr>
 
+        <tr>
+          <td>Artist Overwrite</td>
+          <td>empty</td>
+        </tr>
+
+        <tr>
+          <td>Album Overwrite</td>
+          <td>empty</td>
+        </tr>
+
       </tbody>
 
     </table>
@@ -517,8 +559,42 @@
     "EXPORT_BACKGROUND": true,
     "GENERATE_PLAYLIST": false,
     "REFRESH_DATABASE": false,
-    "MAX_WORKERS": 8
+    "MAX_WORKERS": 8,
+    "ARTIST_OVERWRITE": "empty",
+    "ALBUM_OVERWRITE": "empty"
 }</code></pre>
+
+    <h3>Artist / Album Overwrite Modes</h3>
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Value</th>
+          <th>Behavior</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>none</td>
+          <td>Do not write tags</td>
+        </tr>
+
+        <tr>
+          <td>empty</td>
+          <td>Write only when the file tag is missing or unknown</td>
+        </tr>
+
+        <tr>
+          <td>all</td>
+          <td>Always overwrite with beatmap metadata</td>
+        </tr>
+
+      </tbody>
+
+    </table>
 
   </section>
 
@@ -544,8 +620,9 @@
 
       <li>Extract:
         <ul>
-          <li>Artist</li>
-          <li>Title</li>
+          <li>Artist (ArtistUnicode / Artist)</li>
+          <li>Title (TitleUnicode / Title)</li>
+          <li>Source (used as album)</li>
           <li>Audio file</li>
           <li>Background image</li>
         </ul>
@@ -553,9 +630,11 @@
 
       <li>Export songs into artist folders</li>
 
+      <li>Embed cover, artist, and album tags (when mutagen is installed)</li>
+
       <li>Save export history into JSON database</li>
 
-      <li>Generate playlists automatically</li>
+      <li>Generate playlists automatically (if enabled)</li>
 
     </ol>
 
@@ -609,6 +688,37 @@
         "audio": "D:\\Exported_Osu\\YOASOBI\\アイドル.mp3"
     }
 }</code></pre>
+
+  </section>
+
+  <!-- METADATA -->
+
+  <section class="card">
+
+    <h2>Metadata Embedding</h2>
+
+    <p>
+      When <strong>mutagen</strong> is installed, exported audio files receive embedded tags.
+    </p>
+
+    <h3>Artist</h3>
+
+    <ul>
+      <li>Taken from <code>ArtistUnicode</code>, falling back to <code>Artist</code></li>
+      <li>Controlled by <code>ARTIST_OVERWRITE</code> (<code>none</code> / <code>empty</code> / <code>all</code>)</li>
+    </ul>
+
+    <h3>Album</h3>
+
+    <ul>
+      <li>Taken from beatmap <code>Source</code></li>
+      <li>If <code>Source</code> is empty, uses <strong>Unknown Album</strong></li>
+      <li>Controlled by <code>ALBUM_OVERWRITE</code> (<code>none</code> / <code>empty</code> / <code>all</code>)</li>
+    </ul>
+
+    <p>
+      Supported formats: <code>.mp3</code>, <code>.flac</code>, <code>.ogg</code>, <code>.m4a</code>, <code>.mp4</code>
+    </p>
 
   </section>
 
@@ -668,11 +778,13 @@ to create configuration first.</code></pre>
 
       <li>Background export is optional</li>
 
+      <li>Artist / album embedding requires mutagen</li>
+
       <li>JSON database stored beside Python scripts</li>
 
       <li>Supports copy mode and move mode</li>
 
-      <li>No external dependencies required</li>
+      <li>Fully standalone project (mutagen optional)</li>
 
     </ul>
 
