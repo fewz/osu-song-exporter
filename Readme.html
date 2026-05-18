@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>osu! Song Exporter README</title>
+  <title></title>
   <style>
     :root {
       --bg: #0f172a;
@@ -213,12 +213,7 @@
     <section class="hero">
       <h1>osu! Song Exporter</h1>
       <p>
-        Export semua lagu dari folder osu! menjadi library musik terstruktur berdasarkan artist.
-        Mendukung unicode title, incremental export, multithread processing,
-        playlist otomatis, export cover/background, dan database persistent.
-      </p>
-
-      <div class="badge-container">
+        Export all songs from youExport all songs from your osu! Songs folder into a clean music library organized by artist. Supports unicode metadata, incremental export, multithread processing, automatic playlist generation, cover/background export, and a persistent JSON database.   <div class="badge-container">
         <div class="badge">Python 3.9+</div>
         <div class="badge">Multithread</div>
         <div class="badge">Unicode Support</div>
@@ -233,42 +228,37 @@
       <div class="feature-list">
         <div class="feature">
           <strong>Artist Folder Structure</strong>
-          Semua lagu otomatis dipisah berdasarkan artist.
-        </div>
+          All songs are auAll songs are automatically organized into artist folders.    </div>
 
         <div class="feature">
           <strong>Unicode Support</strong>
-          Menggunakan TitleUnicode dan ArtistUnicode dari beatmap osu.
-        </div>
+          Uses Uses TitleUnicode and ArtistUnicode metadata from osu! beatmaps.        </div>
 
         <div class="feature">
           <strong>Incremental Export</strong>
-          Lagu yang sudah pernah diexport otomatis di-skip.
+          PPreviously exported songs are automatically skipped.d.
         </div>
 
         <div class="feature">
           <strong>JSON Database</strong>
-          Menyimpan histori export ke exported_songs.json.
+        Stores export history inside exported_songs.json.on.
         </div>
 
         <div class="feature">
           <strong>Playlist Generator</strong>
-          Membuat playlist global dan playlist per artist.
+       Generates global playlists and artist-specific playlists automatically.c playlists automatically.
         </div>
 
         <div class="feature">
-          <strong>Background Export</strong>
-          Export cover/background image dari beatmap.
+          <strong>Background Exports beatmap cover/background images.over/background images.
         </div>
 
         <div class="feature">
-          <strong>Multithread Processing</strong>
-          Export jauh lebih cepat pada SSD dan multicore CPU.
+          <strong>Multithread ProcessMuch faster exporting on SSDs and multicore CPUs.s and multicore CPUs.
         </div>
 
         <div class="feature">
-          <strong>Copy / Move Mode</strong>
-          Bisa copy file atau move file langsung.
+          <strong>Copy / Move ModSupports both copy mode and move mode. mode and move mode.
         </div>
       </div>
     </section>
@@ -283,9 +273,8 @@
 ├── exported_songs.json</code></pre>
 
         <h3>Requirements</h3>
-        <ul>
-          <li>Python 3.9 atau lebih baru</li>
-          <li>Tidak membutuhkan library tambahan</li>
+       Python 3.9 or newer 3.9 or newer</li>
+ No external libraries required required</li>
         </ul>
       </section>
 
@@ -293,12 +282,11 @@
         <h2>How It Works</h2>
 
         <ol>
-          <li>Scan semua folder beatmap osu</li>
-          <li>Membaca metadata dari file .osu</li>
-          <li>Mengambil artist, title, audio, dan background</li>
-          <li>Export lagu ke folder artist</li>
-          <li>Menyimpan histori export ke JSON database</li>
-          <li>Membuat playlist otomatis</li>
+     Scan all osu! beatmap foldersp folders</li>
+     Read metadata from .osu filesu files</li>
+       Extract artist, title, audio, and background imageround image</li>
+   Export songs into artist folders artist folders</li>Save export history into JSON databaseSON database</li>
+  Generate playlists automaticallylists automatically</li>
         </ol>
       </section>
     </div>
@@ -309,15 +297,12 @@
 <pre><code>python main.py</code></pre>
 
       <h3>Testing Mode</h3>
-
-      <p>
-        Untuk testing cepat:
+For quick testing:or quick testing:
       </p>
 
 <pre><code>LIMIT = 10</code></pre>
 
-      <p>
-        Untuk export semua lagu:
+ To export all songs:rt all songs:
       </p>
 
 <pre><code>LIMIT = None</code></pre>
@@ -326,33 +311,23 @@
     <section class="card">
       <h2>Configuration</h2>
 
-      <p>
-        Semua konfigurasi berada di file <code>config.py</code>
-      </p>
-
-<pre><code># Folder Songs osu
-OSU_SONGS_FOLDER = r"D:\Games\osu!\Songs"
-
-# Folder output
+     All configuration is stored insides stored inside <code>config.py</code>
+      </p>osu! Songs foldersu! Songs folder
+OSU_SONGS_FOLDER = r"D:\GamesExport output folder
+# Export output folder
 EXPORT_FOLDER = r"D:\Exported_Osu"
 
 # True = copy
-# False = move
-COPY_MODE = True
+# False = moExport background / cover imageExport background / cover imaGenerate playlistsUND = True
 
-# Export background image
-EXPORT_BACKGROUND = True
+# Generate playliRebuild export databaseYLIST = True
 
-# Generate playlist
-GENERATE_PLAYLIST = True
+# Rebuild exporNone = export all songsASE = False
 
-# Rebuild database
-REFRESH_DATABASE = False
-
-# None = export semua lagu
+# Multithread worker countongs
 LIMIT = 10
 
-# Multithread workers
+# Multithread worker count
 MAX_WORKERS = 8</code></pre>
     </section>
 
@@ -374,22 +349,15 @@ MAX_WORKERS = 8</code></pre>
     </section>
 
     <section class="card">
-      <h2>Database System</h2>
-
+      <The script uses:
       <p>
-        Script menggunakan file:
+        The script uses:
       </p>
 
-<pre><code>exported_songs.json</code></pre>
-
-      <p>
-        untuk menyimpan lagu yang sudah pernah diexport.
+<pre><code>exported_songs.jsto store previously exported songs.iously exported songs.
       </p>
 
-      <h3>Duplicate Detection</h3>
-
-      <p>
-        Duplicate dicek menggunakan:
+      <h3>Duplicate Detection</hDuplicate detection uses:ate detection uses:
       </p>
 
 <pre><code>unicode_artist + unicode_title</code></pre>
@@ -407,9 +375,7 @@ MAX_WORKERS = 8</code></pre>
 
     <section class="card">
       <h2>Refresh Database</h2>
-
-      <p>
-        Untuk rebuild database dan export ulang semua lagu:
+To rebuild database and re-export all songs:t all songs:
       </p>
 
 <pre><code>REFRESH_DATABASE = True</code></pre>
@@ -425,11 +391,11 @@ MAX_WORKERS = 8</code></pre>
           <tbody>
             <tr>
               <td><strong>False</strong></td>
-              <td>Incremental export dan skip lagu lama</td>
+      Incremental export and skip old songsip old songs</td>
             </tr>
             <tr>
               <td><strong>True</strong></td>
-              <td>Rebuild database dan export ulang semua lagu</td>
+      Rebuild database and re-export everythingverything</td>
             </tr>
           </tbody>
         </table>
@@ -439,14 +405,12 @@ MAX_WORKERS = 8</code></pre>
     <section class="card">
       <h2>Performance Tips</h2>
 
-      <p>
-        Untuk SSD dan multicore CPU:
+      <p>For SSDs and multicore CPUs:ore CPUs:
       </p>
 
 <pre><code>MAX_WORKERS = 16</code></pre>
 
-      <p class="success">
-        Export speed akan meningkat signifikan pada library besar.
+      <p class="success">Export speed increases significantly on large music libraries.ic libraries.
       </p>
     </section>
 
