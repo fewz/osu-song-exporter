@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>osu! Song Exporter README</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-light: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --accent-2: #22c55e;
+      --border: #374151;
+      --code: #0b1220;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+      color: var(--text);
+      font-family: Inter, Segoe UI, Roboto, sans-serif;
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e293b 0%, #111827 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      margin-bottom: 32px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 800px;
+      margin-top: 16px;
+    }
+
+    .badge-container {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .badge {
+      background: rgba(96, 165, 250, 0.15);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      color: #93c5fd;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 28px;
+      margin-bottom: 18px;
+    }
+
+    h3 {
+      margin-top: 28px;
+      margin-bottom: 12px;
+      color: #f3f4f6;
+    }
+
+    p {
+      color: var(--text);
+    }
+
+    ul {
+      padding-left: 22px;
+    }
+
+    li {
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    code {
+      background: rgba(255,255,255,0.08);
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #93c5fd;
+      font-size: 0.95em;
+    }
+
+    pre {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      overflow-x: auto;
+      margin-top: 16px;
+      margin-bottom: 24px;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .feature {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .feature strong {
+      display: block;
+      margin-bottom: 8px;
+      color: white;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 14px;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .success {
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 48px;
+      padding-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 32px;
+      }
+
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .card {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <section class="hero">
+      <h1>osu! Song Exporter</h1>
+      <p>
+        Export semua lagu dari folder osu! menjadi library musik terstruktur berdasarkan artist.
+        Mendukung unicode title, incremental export, multithread processing,
+        playlist otomatis, export cover/background, dan database persistent.
+      </p>
+
+      <div class="badge-container">
+        <div class="badge">Python 3.9+</div>
+        <div class="badge">Multithread</div>
+        <div class="badge">Unicode Support</div>
+        <div class="badge">Playlist Generator</div>
+        <div class="badge">Incremental Export</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Features</h2>
+
+      <div class="feature-list">
+        <div class="feature">
+          <strong>Artist Folder Structure</strong>
+          Semua lagu otomatis dipisah berdasarkan artist.
+        </div>
+
+        <div class="feature">
+          <strong>Unicode Support</strong>
+          Menggunakan TitleUnicode dan ArtistUnicode dari beatmap osu.
+        </div>
+
+        <div class="feature">
+          <strong>Incremental Export</strong>
+          Lagu yang sudah pernah diexport otomatis di-skip.
+        </div>
+
+        <div class="feature">
+          <strong>JSON Database</strong>
+          Menyimpan histori export ke exported_songs.json.
+        </div>
+
+        <div class="feature">
+          <strong>Playlist Generator</strong>
+          Membuat playlist global dan playlist per artist.
+        </div>
+
+        <div class="feature">
+          <strong>Background Export</strong>
+          Export cover/background image dari beatmap.
+        </div>
+
+        <div class="feature">
+          <strong>Multithread Processing</strong>
+          Export jauh lebih cepat pada SSD dan multicore CPU.
+        </div>
+
+        <div class="feature">
+          <strong>Copy / Move Mode</strong>
+          Bisa copy file atau move file langsung.
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Project Structure</h2>
+
+<pre><code>project_folder
+├── main.py
+├── config.py
+├── exported_songs.json</code></pre>
+
+        <h3>Requirements</h3>
+        <ul>
+          <li>Python 3.9 atau lebih baru</li>
+          <li>Tidak membutuhkan library tambahan</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>How It Works</h2>
+
+        <ol>
+          <li>Scan semua folder beatmap osu</li>
+          <li>Membaca metadata dari file .osu</li>
+          <li>Mengambil artist, title, audio, dan background</li>
+          <li>Export lagu ke folder artist</li>
+          <li>Menyimpan histori export ke JSON database</li>
+          <li>Membuat playlist otomatis</li>
+        </ol>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>Running The Script</h2>
+
+<pre><code>python main.py</code></pre>
+
+      <h3>Testing Mode</h3>
+
+      <p>
+        Untuk testing cepat:
+      </p>
+
+<pre><code>LIMIT = 10</code></pre>
+
+      <p>
+        Untuk export semua lagu:
+      </p>
+
+<pre><code>LIMIT = None</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Configuration</h2>
+
+      <p>
+        Semua konfigurasi berada di file <code>config.py</code>
+      </p>
+
+<pre><code># Folder Songs osu
+OSU_SONGS_FOLDER = r"D:\Games\osu!\Songs"
+
+# Folder output
+EXPORT_FOLDER = r"D:\Exported_Osu"
+
+# True = copy
+# False = move
+COPY_MODE = True
+
+# Export background image
+EXPORT_BACKGROUND = True
+
+# Generate playlist
+GENERATE_PLAYLIST = True
+
+# Rebuild database
+REFRESH_DATABASE = False
+
+# None = export semua lagu
+LIMIT = 10
+
+# Multithread workers
+MAX_WORKERS = 8</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Example Output</h2>
+
+<pre><code>D:\Exported_Osu
+├── playlist.m3u
+│
+├── YOASOBI
+│   ├── playlist.m3u
+│   ├── アイドル.mp3
+│   ├── アイドル_cover.jpg
+│
+├── Camellia
+│   ├── playlist.m3u
+│   ├── GHOST.ogg
+│   ├── GHOST_cover.jpg</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Database System</h2>
+
+      <p>
+        Script menggunakan file:
+      </p>
+
+<pre><code>exported_songs.json</code></pre>
+
+      <p>
+        untuk menyimpan lagu yang sudah pernah diexport.
+      </p>
+
+      <h3>Duplicate Detection</h3>
+
+      <p>
+        Duplicate dicek menggunakan:
+      </p>
+
+<pre><code>unicode_artist + unicode_title</code></pre>
+
+      <h3>Example JSON</h3>
+
+<pre><code>{
+  "yoasobi::アイドル": {
+    "artist": "YOASOBI",
+    "title": "アイドル",
+    "audio": "D:\\Exported_Osu\\YOASOBI\\アイドル.mp3"
+  }
+}</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Refresh Database</h2>
+
+      <p>
+        Untuk rebuild database dan export ulang semua lagu:
+      </p>
+
+<pre><code>REFRESH_DATABASE = True</code></pre>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Mode</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>False</strong></td>
+              <td>Incremental export dan skip lagu lama</td>
+            </tr>
+            <tr>
+              <td><strong>True</strong></td>
+              <td>Rebuild database dan export ulang semua lagu</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Performance Tips</h2>
+
+      <p>
+        Untuk SSD dan multicore CPU:
+      </p>
+
+<pre><code>MAX_WORKERS = 16</code></pre>
+
+      <p class="success">
+        Export speed akan meningkat signifikan pada library besar.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Supported Audio Formats</h2>
+
+      <ul>
+        <li>.mp3</li>
+        <li>.ogg</li>
+        <li>.wav</li>
+        <li>.flac</li>
+      </ul>
+    </section>
+
+    <div class="footer">
+      osu! Song Exporter README
+    </div>
+
+  </div>
+</body>
+</html>
