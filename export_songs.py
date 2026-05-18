@@ -1,34 +1,70 @@
-# main.py
+# export_songs.py
 
+import json
 import shutil
 import re
-import json
-import importlib.util
+import sys
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
+
+CONFIG_FILE = "config.json"
+DATABASE_FILE = "exported_songs.json"
+
+db_lock = Lock()
 
 # =========================================================
 # LOAD CONFIG
 # =========================================================
 
-CONFIG_FILE = "config.py"
+config_path = Path(CONFIG_FILE)
 
-spec = importlib.util.spec_from_file_location(
-    "config",
-    CONFIG_FILE
-)
+if not config_path.exists():
 
-config = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(config)
+    print()
+    print("======================================")
+    print("ERROR: config.json not found")
+    print("======================================")
+    print()
+    print("Please run:")
+    print("config_ui.py")
+    print()
+    print("to create configuration first.")
+    print()
+
+    input("Press Enter to exit...")
+
+    sys.exit(1)
+
+try:
+
+    with open(
+        config_path,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        config = json.load(f)
+
+except Exception as e:
+
+    print()
+    print("======================================")
+    print("ERROR: Failed to load config.json")
+    print("======================================")
+    print()
+    print(e)
+    print()
+
+    input("Press Enter to exit...")
+
+    sys.exit(1)
 
 # =========================================================
 
-db_lock = Lock()
-
-# JSON database di folder script python saat ini
 SCRIPT_DIR = Path(__file__).parent
-DATABASE_PATH = SCRIPT_DIR / "exported_songs.json"
+
+DATABASE_PATH = SCRIPT_DIR / DATABASE_FILE
 
 
 def sanitize_filename(name):
@@ -36,7 +72,7 @@ def sanitize_filename(name):
     if not name:
         return "Unknown"
 
-    name = re.sub(r'[<>:"/\\|?*]', '', name)
+    name = re.sub(r'[<>:"/\\\\|?*]', '', name)
     name = name.strip()
 
     return name if name else "Unknown"
@@ -63,10 +99,6 @@ def parse_osu_file(osu_file):
 
                     line = line.strip()
 
-                    # ======================================
-                    # TITLE
-                    # ======================================
-
                     if line.startswith("TitleUnicode:"):
 
                         value = line.replace(
@@ -83,10 +115,6 @@ def parse_osu_file(osu_file):
                             "Title:",
                             ""
                         ).strip()
-
-                    # ======================================
-                    # ARTIST
-                    # ======================================
 
                     if line.startswith("ArtistUnicode:"):
 
@@ -105,20 +133,12 @@ def parse_osu_file(osu_file):
                             ""
                         ).strip()
 
-                    # ======================================
-                    # AUDIO
-                    # ======================================
-
                     elif line.startswith("AudioFilename:"):
 
                         audio = line.replace(
                             "AudioFilename:",
                             ""
                         ).strip()
-
-                    # ======================================
-                    # EVENTS
-                    # ======================================
 
                     elif line.startswith("[Events]"):
 
@@ -127,10 +147,6 @@ def parse_osu_file(osu_file):
                     elif line.startswith("[") and line != "[Events]":
 
                         in_events = False
-
-                    # ======================================
-                    # BACKGROUND
-                    # ======================================
 
                     elif in_events and not background:
 
@@ -166,7 +182,7 @@ def generate_song_key(artist, title):
 
 def load_database():
 
-    if config.REFRESH_DATABASE:
+    if config["REFRESH_DATABASE"]:
         return {}
 
     if not DATABASE_PATH.exists():
@@ -226,11 +242,10 @@ def process_folder(folder, database, export_root):
         title = metadata["title"]
         artist = metadata["artist"]
 
-        song_key = generate_song_key(artist, title)
-
-        # ==========================================
-        # CHECK DATABASE
-        # ==========================================
+        song_key = generate_song_key(
+            artist,
+            title
+        )
 
         with db_lock:
 
@@ -247,19 +262,22 @@ def process_folder(folder, database, export_root):
         if not audio_file.exists():
             return None
 
-        # ==========================================
-        # OUTPUT
-        # ==========================================
-
         safe_artist = sanitize_filename(artist)
         safe_title = sanitize_filename(title)
 
         artist_folder = export_root / safe_artist
-        artist_folder.mkdir(parents=True, exist_ok=True)
+
+        artist_folder.mkdir(
+            parents=True,
+            exist_ok=True
+        )
 
         ext = audio_file.suffix
 
-        output_audio = artist_folder / f"{safe_title}{ext}"
+        output_audio = (
+            artist_folder /
+            f"{safe_title}{ext}"
+        )
 
         counter = 1
 
@@ -272,22 +290,16 @@ def process_folder(folder, database, export_root):
 
             counter += 1
 
-        # ==========================================
-        # COPY / MOVE
-        # ==========================================
-
-        if config.COPY_MODE:
+        if config["COPY_MODE"]:
             shutil.copy2(audio_file, output_audio)
         else:
             shutil.move(audio_file, output_audio)
 
-        # ==========================================
-        # BACKGROUND
-        # ==========================================
+        # background
 
         if (
-            config.EXPORT_BACKGROUND and
-            metadata["background"]
+            config["EXPORT_BACKGROUND"]
+            and metadata["background"]
         ):
 
             bg_file = folder / metadata["background"]
@@ -305,10 +317,6 @@ def process_folder(folder, database, export_root):
                     shutil.copy2(bg_file, output_bg)
                 except:
                     pass
-
-        # ==========================================
-        # SAVE DATABASE
-        # ==========================================
 
         with db_lock:
 
@@ -334,10 +342,6 @@ def process_folder(folder, database, export_root):
 
 def generate_playlist(database, export_root):
 
-    # ==========================================
-    # GLOBAL PLAYLIST
-    # ==========================================
-
     global_playlist = export_root / "playlist.m3u"
 
     with open(global_playlist, "w", encoding="utf-8") as f:
@@ -354,9 +358,7 @@ def generate_playlist(database, export_root):
 
                 f.write(str(rel) + "\n")
 
-    # ==========================================
-    # ARTIST PLAYLIST
-    # ==========================================
+    # artist playlist
 
     artist_map = {}
 
@@ -390,31 +392,38 @@ def generate_playlist(database, export_root):
 
 def main():
 
-    export_root = Path(config.EXPORT_FOLDER)
-    export_root.mkdir(parents=True, exist_ok=True)
+    export_root = Path(config["EXPORT_FOLDER"])
+
+    export_root.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
     database = load_database()
 
-    songs_path = Path(config.OSU_SONGS_FOLDER)
+    songs_path = Path(
+        config["OSU_SONGS_FOLDER"]
+    )
 
     folders = [
         f for f in songs_path.iterdir()
         if f.is_dir()
     ]
 
-    if config.LIMIT is not None:
-        folders = folders[:config.LIMIT]
+    if not config["LIMIT_ALL"]:
+
+        folders = folders[:config["LIMIT"]]
 
     print(f"Folder scan : {len(folders)}")
     print(f"Database    : {len(database)}")
-    print(f"Workers     : {config.MAX_WORKERS}")
+    print(f"Workers     : {config['MAX_WORKERS']}")
     print()
 
     exported = 0
     skipped = 0
 
     with ThreadPoolExecutor(
-        max_workers=config.MAX_WORKERS
+        max_workers=config["MAX_WORKERS"]
     ) as executor:
 
         futures = [
@@ -452,24 +461,20 @@ def main():
                     f"{result['artist']} - {result['title']}"
                 )
 
-    # ==========================================
-    # SAVE DATABASE
-    # ==========================================
-
     save_database(database)
 
-    # ==========================================
-    # PLAYLIST
-    # ==========================================
-
-    if config.GENERATE_PLAYLIST:
+    if config["GENERATE_PLAYLIST"]:
         generate_playlist(database, export_root)
 
-    print("\n====================================")
+    print()
+    print("======================================")
     print(f"Exported : {exported}")
     print(f"Skipped  : {skipped}")
     print(f"Database : {len(database)}")
-    print("====================================")
+    print("======================================")
+    print()
+
+    input("Press Enter to exit...")
 
 
 if __name__ == "__main__":

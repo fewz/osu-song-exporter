@@ -10,6 +10,7 @@ Supports:
 - Multithread processing
 - Persistent JSON database
 - Duplicate prevention
+- GUI configuration editor
 
 ---
 
@@ -26,7 +27,111 @@ Supports:
 - Persistent JSON database
 - Multithread processing
 - Copy mode or move mode
+- GUI configuration editor
+- Scrollable configuration UI
+- Config validation system
 - Testing limit support
+
+---
+
+# Project Structure
+
+```text
+project_folder
+├── config_ui.py
+├── export_songs.py
+├── config.json
+├── exported_songs.json
+```
+
+---
+
+# Requirements
+
+- Python 3.9+
+- No external libraries required
+
+---
+
+# Configuration UI
+
+The project includes a dedicated graphical configuration editor.
+
+Launch configuration UI:
+
+```bash
+python config_ui.py
+```
+
+The UI supports:
+
+- osu! Songs folder picker
+- Export folder picker
+- Export all songs checkbox
+- Song limit input
+- Copy / move mode
+- Export background toggle
+- Playlist generation toggle
+- Refresh database toggle
+- Max worker configuration
+- Scrollable interface
+- Automatic config validation
+
+---
+
+# Default Configuration
+
+| Setting | Default |
+|---|---|
+| Copy Mode | True |
+| Export Background | True |
+| Generate Playlist | False |
+| Refresh Database | False |
+| Export All Songs | True |
+| Max Workers | 8 |
+
+---
+
+# Configuration File Example
+
+Generated automatically after saving:
+
+```json
+{
+    "OSU_SONGS_FOLDER": "D:\\Games\\osu!\\Songs",
+    "EXPORT_FOLDER": "D:\\Exported_Osu",
+    "LIMIT_ALL": true,
+    "LIMIT": 10,
+    "COPY_MODE": true,
+    "EXPORT_BACKGROUND": true,
+    "GENERATE_PLAYLIST": false,
+    "REFRESH_DATABASE": false,
+    "MAX_WORKERS": 8
+}
+```
+
+---
+
+# Export Songs
+
+After saving configuration:
+
+```bash
+python export_songs.py
+```
+
+The exporter will:
+
+1. Scan all osu! beatmap folders
+2. Read metadata from `.osu` files
+3. Extract:
+   - Artist
+   - Title
+   - Audio file
+   - Background image
+4. Export songs into artist folders
+5. Save export history into JSON database
+6. Generate playlists automatically
 
 ---
 
@@ -49,88 +154,9 @@ D:\Exported_Osu
 
 ---
 
-# Project Structure
-
-```text
-project_folder
-├── main.py
-├── config.py
-├── exported_songs.json
-```
-
----
-
-# Requirements
-
-- Python 3.9+
-- No external libraries required
-
----
-
-# Installation
-
-Clone repository:
-
-```bash
-git clone https://github.com/yourname/osu-song-exporter.git
-```
-
-Open project folder:
-
-```bash
-cd osu-song-exporter
-```
-
-Run:
-
-```bash
-python main.py
-```
-
----
-
-# Configuration
-
-Edit:
-
-```text
-config.py
-```
-
-Example:
-
-```python
-# osu Songs folder
-OSU_SONGS_FOLDER = r"D:\Games\osu!\Songs"
-
-# Export output folder
-EXPORT_FOLDER = r"D:\Exported_Osu"
-
-# True = copy
-# False = move
-COPY_MODE = True
-
-# Export background image
-EXPORT_BACKGROUND = True
-
-# Generate playlists
-GENERATE_PLAYLIST = True
-
-# Rebuild database
-REFRESH_DATABASE = False
-
-# None = export all songs
-LIMIT = 10
-
-# Multithread workers
-MAX_WORKERS = 8
-```
-
----
-
 # Incremental Export System
 
-The script stores exported songs in:
+The exporter stores exported songs in:
 
 ```text
 exported_songs.json
@@ -160,8 +186,10 @@ Example:
 
 To rebuild database and export everything again:
 
-```python
-REFRESH_DATABASE = True
+Enable:
+
+```json
+"REFRESH_DATABASE": true
 ```
 
 | Value | Behavior |
@@ -206,8 +234,8 @@ Compatible with:
 
 For SSD and multicore CPUs:
 
-```python
-MAX_WORKERS = 16
+```json
+"MAX_WORKERS": 16
 ```
 
 Higher worker count significantly improves export speed on large libraries.
@@ -216,7 +244,7 @@ Higher worker count significantly improves export speed on large libraries.
 
 # Unicode Support
 
-The script automatically prioritizes:
+The exporter automatically prioritizes:
 
 - `TitleUnicode`
 - `ArtistUnicode`
@@ -229,6 +257,23 @@ YOASOBI - アイドル
 
 ---
 
+# Missing Config Protection
+
+If `config.json` does not exist:
+
+```text
+======================================
+ERROR: config.json not found
+======================================
+
+Please run:
+config_ui.py
+
+to create configuration first.
+```
+
+---
+
 # Notes
 
 - Duplicate difficulty maps are skipped automatically
@@ -236,6 +281,8 @@ YOASOBI - アイドル
 - Background export is optional
 - JSON database stored beside Python script
 - Supports copy mode and move mode
+- Fully standalone project
+- No external dependency required
 
 ---
 
